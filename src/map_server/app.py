@@ -147,7 +147,7 @@ def get_route():
         return jsonify({
             'success': False,
             'error': 'Server error',
-            'message': str(e)
+            'message': 'An error occurred while calculating the route'
         }), 500
 
 
@@ -203,17 +203,18 @@ def add_location():
         }), 201
         
     except (TypeError, ValueError) as e:
+        app.logger.error(f"Invalid data format: {e}")
         return jsonify({
             'success': False,
             'error': 'Invalid data format',
-            'message': str(e)
+            'message': 'Please provide valid location data (id, name, lat, lon)'
         }), 400
     except Exception as e:
         app.logger.error(f"Error adding location: {e}")
         return jsonify({
             'success': False,
             'error': 'Server error',
-            'message': str(e)
+            'message': 'An error occurred while adding the location'
         }), 500
 
 
@@ -273,6 +274,7 @@ def find_nearby():
         })
         
     except (TypeError, ValueError) as e:
+        app.logger.error(f"Invalid parameters: {e}")
         return jsonify({
             'success': False,
             'error': 'Invalid parameters',
@@ -283,7 +285,7 @@ def find_nearby():
         return jsonify({
             'success': False,
             'error': 'Server error',
-            'message': str(e)
+            'message': 'An error occurred while searching for nearby locations'
         }), 500
 
 
