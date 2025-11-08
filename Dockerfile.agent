@@ -1,0 +1,26 @@
+# Dockerfile for Navigation Agent
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    MAP_SERVER_URL=http://mapserver:5000 \
+    AGENT_ID=agent-001
+
+# Copy requirements first (for layer caching)
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/agent /app/agent
+
+# Set Python path
+ENV PYTHONPATH=/app
+
+# Run the agent
+CMD ["python", "agent/main.py"]

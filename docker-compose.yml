@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # Map Server Service
+  mapserver:
+    build:
+      context: .
+      dockerfile: Dockerfile.mapserver
+    image: map-server:latest
+    container_name: map-server
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # Navigation Agent Service
+  agent:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    image: navigation-agent:latest
+    container_name: navigation-agent
+    depends_on:
+      mapserver:
+        condition: service_healthy
+    environment:
+      - MAP_SERVER_URL=http://mapserver:5000
+      - AGENT_ID=agent-001
+    networks:
+      - app-network
+    restart: on-failure
+
+networks:
+  app-network:
+    driver: bridge
+    name: python-for-engineers-network
